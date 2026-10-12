@@ -15,6 +15,11 @@ features:
     - RACE
     - ETHNICITY
     - PRIOR_DX
+  # Extra features used only by the ORIGINAL 12-feature course version (clinical_original).
+  # Excluded from the routine model: Buffa is calculated from tumor mRNA, staging edition
+  # reflects diagnosis year/hospital, and radiation therapy is given after diagnosis.
+  original_extra_numeric: [BUFFA_HYPOXIA_SCORE]
+  original_extra_categorical: [AJCC_STAGING_EDITION, RADIATION_THERAPY]
   # Genes used as mRNA stand-ins for IHC stains
   ihc_genes:
     AR: Androgen receptor
@@ -42,5 +47,5 @@ evaluate:
 
 # Model refit on all patients and saved for serving
 final_model:
-  feature_set: ihc_panel        # clinical | ihc_panel | clinical_ihc
+  feature_set: ihc_panel        # clinical_original | clinical | ihc_panel | clinical_ihc
   model: random_forest          # logistic_regression | random_forest

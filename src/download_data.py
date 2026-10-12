@@ -13,6 +13,7 @@ DATAHUB = ("https://media.githubusercontent.com/media/cBioPortal/datahub/master/
 FILES = {
     "tcga_brca_clinical_patient.txt": DATAHUB + "data_clinical_patient.txt",
     "tcga_brca_mrna_rsem.txt": DATAHUB + "data_mrna_seq_v2_rsem.txt",  # ~150 MB
+    "tcga_brca_hypoxia.txt": DATAHUB + "data_clinical_supp_hypoxia.txt",  # Buffa score (original version only)
 }
 S1_URL = ("https://journals.plos.org/plosone/article/file?type=supplementary"
           "&id=10.1371/journal.pone.0157368.s006")

@@ -1,3 +1,11 @@
+#!/usr/bin/env bash
+# One-step update: adds the original 12-feature version (clinical_original),
+# re-versions the data with DVC, reruns the pipeline, commits and pushes.
+set -e
+cd "$(dirname "$0")"
+grep -qx "run_update.sh" .git/info/exclude 2>/dev/null || echo "run_update.sh" >> .git/info/exclude   # keep this script out of git
+
+echo "== 1/6  Updating project files =="
 cat > params.yaml <<'EOF_TNBC'
 # All tunable settings live here. DVC tracks this file, so changing a value
 # marks the affected pipeline stages as out of date.
@@ -382,4 +390,29 @@ Anyone who clones the repo can then run `dvc pull` to get the exact data used fo
 - [ ] **Dagster:** orchestrate the pipeline as scheduled, monitored assets
 - [ ] **KServe:** serve the final model behind a prediction API
 EOF_TNBC
-echo "Files updated"
+
+if [ -f update_tnbc.sh ]; then git rm -q update_tnbc.sh 2>/dev/null || rm -f update_tnbc.sh; fi
+grep -q clinical_original params.yaml && echo "Project files updated"
+
+echo "== 2/6  Downloading new raw data =="
+python src/download_data.py
+
+echo "== 3/6  Versioning data with DVC =="
+dvc add data/raw
+git add -A
+git commit -q -m "Add original 12-feature version (clinical_original)" || true
+
+echo "== 4/6  Running the pipeline (5-8 minutes) =="
+dvc repro
+
+echo "== 5/6  Saving results =="
+git add -A
+git commit -q -m "Rerun pipeline with original 12-feature version" || true
+
+echo "== 6/6  Pushing to GitHub =="
+git push || echo "Push did not work - send this message to Claude"
+
+echo
+dvc metrics show
+echo
+echo "ALL DONE"

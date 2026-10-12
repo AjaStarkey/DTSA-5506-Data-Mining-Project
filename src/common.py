@@ -26,12 +26,20 @@ def ihc_columns(params):
     return [f"IHC_{g}" for g in params["features"]["ihc_genes"]]
 
 
+def categorical_columns(params):
+    f = params["features"]
+    return f["clinical_categorical"] + f["original_extra_categorical"]
+
+
 def feature_sets(params):
     """Name -> (numeric columns, categorical columns)."""
-    num = params["features"]["clinical_numeric"]
-    cat = params["features"]["clinical_categorical"]
+    f = params["features"]
+    num, cat = f["clinical_numeric"], f["clinical_categorical"]
     ihc = ihc_columns(params)
     return {
+        # Original course version: 12 clinical features incl. Buffa hypoxia (mRNA-derived)
+        "clinical_original": (num + f["original_extra_numeric"], cat + f["original_extra_categorical"]),
+        # Routine clinical features only (9)
         "clinical": (num, cat),
         "ihc_panel": (ihc, []),
         "clinical_ihc": (num + ihc, cat),
@@ -74,7 +82,7 @@ def load_dataset(params):
     import pandas as pd
 
     data = pd.read_parquet(PROCESSED / "dataset.parquet")
-    cat = params["features"]["clinical_categorical"]
+    cat = categorical_columns(params)
     data[cat] = data[cat].astype(object).where(data[cat].notna(), np.nan)
     data["Subtype"] = data["Subtype"].astype(str).to_numpy(dtype=object)
     return data
