@@ -1,0 +1,38 @@
+{
+  "clinical": {
+    "logistic_regression": {
+      "f1_macro_mean": 0.2488,
+      "f1_macro_sd": 0.0635,
+      "accuracy_mean": 0.2731
+    },
+    "random_forest": {
+      "f1_macro_mean": 0.2211,
+      "f1_macro_sd": 0.0749,
+      "accuracy_mean": 0.24
+    }
+  },
+  "ihc_panel": {
+    "logistic_regression": {
+      "f1_macro_mean": 0.5846,
+      "f1_macro_sd": 0.0721,
+      "accuracy_mean": 0.6023
+    },
+    "random_forest": {
+      "f1_macro_mean": 0.5971,
+      "f1_macro_sd": 0.0689,
+      "accuracy_mean": 0.6183
+    }
+  },
+  "clinical_ihc": {
+    "logistic_regression": {
+      "f1_macro_mean": 0.5679,
+      "f1_macro_sd": 0.0649,
+      "accuracy_mean": 0.5886
+    },
+    "random_forest": {
+      "f1_macro_mean": 0.5921,
+      "f1_macro_sd": 0.0789,
+      "accuracy_mean": 0.6149
+    }
+  }
+}

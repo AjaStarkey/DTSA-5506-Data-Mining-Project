@@ -1,0 +1,7 @@
+feature_set,model,f1_macro_mean,f1_macro_sd,accuracy_mean
+clinical,logistic_regression,0.2488,0.0635,0.2731
+clinical,random_forest,0.2211,0.0749,0.24
+ihc_panel,logistic_regression,0.5846,0.0721,0.6023
+ihc_panel,random_forest,0.5971,0.0689,0.6183
+clinical_ihc,logistic_regression,0.5679,0.0649,0.5886
+clinical_ihc,random_forest,0.5921,0.0789,0.6149

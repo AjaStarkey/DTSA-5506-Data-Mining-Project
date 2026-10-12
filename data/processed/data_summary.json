@@ -1,0 +1,11 @@
+{
+  "n_patients": 175,
+  "n_labeled": 176,
+  "subtype_counts": {
+    "BL1": 59,
+    "M": 44,
+    "LAR": 38,
+    "BL2": 34
+  },
+  "age_median": 53.0
+}

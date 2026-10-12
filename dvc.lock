@@ -1,0 +1,171 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python src/prepare.py
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: 5a7daf0ff68901b8302a8d89410ad2a9.dir
+      size: 155036095
+      nfiles: 3
+    - path: src/common.py
+      hash: md5
+      md5: bd15b5e411c0335667397863be0f59f7
+      size: 2953
+    - path: src/prepare.py
+      hash: md5
+      md5: fe5fd089650f241cc9ad71dc75304174
+      size: 2555
+    params:
+      params.yaml:
+        data:
+          subtypes:
+          - BL1
+          - BL2
+          - LAR
+          - M
+        features:
+          clinical_numeric:
+          - AGE
+          clinical_categorical:
+          - AJCC_PATHOLOGIC_TUMOR_STAGE
+          - PATH_T_STAGE
+          - PATH_N_STAGE
+          - PATH_M_STAGE
+          - ICD_O_3_HISTOLOGY
+          - RACE
+          - ETHNICITY
+          - PRIOR_DX
+          ihc_genes:
+            AR: Androgen receptor
+            FOXA1: FOXA1
+            MKI67: Ki-67
+            KRT5: CK5/6
+            KRT6A: CK5/6
+            EGFR: EGFR
+            VIM: Vimentin
+    outs:
+    - path: data/processed/data_summary.json
+      hash: md5
+      md5: 54e3f98a6c7c18ac03dc1c5236079910
+      size: 149
+    - path: data/processed/dataset.parquet
+      hash: md5
+      md5: 129d18a3b27ad191c4f9268d38912c9f
+      size: 24497
+  train:
+    cmd: python src/train.py
+    deps:
+    - path: data/processed/dataset.parquet
+      hash: md5
+      md5: 129d18a3b27ad191c4f9268d38912c9f
+      size: 24497
+    - path: src/common.py
+      hash: md5
+      md5: bd15b5e411c0335667397863be0f59f7
+      size: 2953
+    - path: src/train.py
+      hash: md5
+      md5: 522b7b2b82825ad77b515a1b1467d288
+      size: 2088
+    params:
+      params.yaml:
+        cv:
+          n_splits: 5
+          n_repeats: 5
+          random_state: 42
+        features:
+          clinical_numeric:
+          - AGE
+          clinical_categorical:
+          - AJCC_PATHOLOGIC_TUMOR_STAGE
+          - PATH_T_STAGE
+          - PATH_N_STAGE
+          - PATH_M_STAGE
+          - ICD_O_3_HISTOLOGY
+          - RACE
+          - ETHNICITY
+          - PRIOR_DX
+          ihc_genes:
+            AR: Androgen receptor
+            FOXA1: FOXA1
+            MKI67: Ki-67
+            KRT5: CK5/6
+            KRT6A: CK5/6
+            EGFR: EGFR
+            VIM: Vimentin
+        final_model:
+          feature_set: ihc_panel
+          model: random_forest
+        models:
+          logistic_regression:
+            C: 0.1
+          random_forest:
+            n_estimators: 300
+            min_samples_leaf: 3
+    outs:
+    - path: metrics/cv_metrics.json
+      hash: md5
+      md5: 10d7fb4bfb35993891a6ce6976f8cdfb
+      size: 803
+    - path: metrics/cv_results.csv
+      hash: md5
+      md5: 817f8cc900d4d36deab38e106df4e771
+      size: 348
+    - path: models/model.joblib
+      hash: md5
+      md5: 995c4ba6aefe90fc67a241d491cd7c90
+      size: 1553229
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - path: data/processed/dataset.parquet
+      hash: md5
+      md5: 129d18a3b27ad191c4f9268d38912c9f
+      size: 24497
+    - path: src/common.py
+      hash: md5
+      md5: bd15b5e411c0335667397863be0f59f7
+      size: 2953
+    - path: src/evaluate.py
+      hash: md5
+      md5: 66f666fb0eb1de186b8260623e2eb218
+      size: 3973
+    params:
+      params.yaml:
+        cv:
+          n_splits: 5
+          n_repeats: 5
+          random_state: 42
+        evaluate:
+          ablation_repeats: 10
+        final_model:
+          feature_set: ihc_panel
+          model: random_forest
+        models:
+          logistic_regression:
+            C: 0.1
+          random_forest:
+            n_estimators: 300
+            min_samples_leaf: 3
+    outs:
+    - path: metrics/oof_predictions.csv
+      hash: md5
+      md5: 48fbb9171d6a1f0613cee180483772e3
+      size: 3520
+    - path: metrics/per_class.json
+      hash: md5
+      md5: 9105e07788738d4d1da070ac618d5e84
+      size: 341
+    - path: metrics/stain_ablation.csv
+      hash: md5
+      md5: e4507bd30c251c090901aecd69bfefd6
+      size: 216
+    - path: plots/confusion_matrix.png
+      hash: md5
+      md5: 7a94d06caa01c277bd1b51fd210b986f
+      size: 33083
+    - path: plots/stain_ablation.png
+      hash: md5
+      md5: cb9e39db4faa56da09406b9a71497807
+      size: 31317
