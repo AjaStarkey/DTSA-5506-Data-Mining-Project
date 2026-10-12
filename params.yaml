@@ -1,0 +1,46 @@
+# All tunable settings live here. DVC tracks this file, so changing a value
+# marks the affected pipeline stages as out of date.
+
+data:
+  subtypes: [BL1, BL2, LAR, M]
+
+features:
+  clinical_numeric: [AGE]
+  clinical_categorical:
+    - AJCC_PATHOLOGIC_TUMOR_STAGE
+    - PATH_T_STAGE
+    - PATH_N_STAGE
+    - PATH_M_STAGE
+    - ICD_O_3_HISTOLOGY
+    - RACE
+    - ETHNICITY
+    - PRIOR_DX
+  # Genes used as mRNA stand-ins for IHC stains
+  ihc_genes:
+    AR: Androgen receptor
+    FOXA1: FOXA1
+    MKI67: Ki-67
+    KRT5: CK5/6
+    KRT6A: CK5/6
+    EGFR: EGFR
+    VIM: Vimentin
+
+cv:
+  n_splits: 5
+  n_repeats: 5
+  random_state: 42
+
+models:
+  logistic_regression:
+    C: 0.1
+  random_forest:
+    n_estimators: 300
+    min_samples_leaf: 3
+
+evaluate:
+  ablation_repeats: 10          # repeats for the drop-one-stain analysis (more = less noise)
+
+# Model refit on all patients and saved for serving
+final_model:
+  feature_set: ihc_panel        # clinical | ihc_panel | clinical_ihc
+  model: random_forest          # logistic_regression | random_forest

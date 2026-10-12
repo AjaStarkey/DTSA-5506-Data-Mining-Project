@@ -1,0 +1,66 @@
+stages:
+  prepare:
+    cmd: python src/prepare.py
+    deps:
+      - src/prepare.py
+      - src/common.py
+      - data/raw
+    params:
+      - data
+      - features
+    outs:
+      - data/processed/dataset.parquet
+    metrics:
+      - data/processed/data_summary.json:
+          cache: false
+
+  train:
+    cmd: python src/train.py
+    deps:
+      - src/train.py
+      - src/common.py
+      - data/processed/dataset.parquet
+    params:
+      - features
+      - cv
+      - models
+      - final_model
+    outs:
+      - models/model.joblib
+    metrics:
+      - metrics/cv_metrics.json:
+          cache: false
+    plots:
+      - metrics/cv_results.csv:
+          cache: false
+          template: bar_horizontal
+          x: f1_macro_mean
+          y: feature_set
+
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+      - src/evaluate.py
+      - src/common.py
+      - data/processed/dataset.parquet
+    params:
+      - cv
+      - models
+      - final_model
+      - evaluate
+    metrics:
+      - metrics/per_class.json:
+          cache: false
+    outs:
+      - metrics/stain_ablation.csv:
+          cache: false
+    plots:
+      - metrics/oof_predictions.csv:
+          cache: false
+          template: confusion
+          x: actual
+          y: predicted
+      - plots/confusion_matrix.png:
+          cache: false
+      - plots/stain_ablation.png:
+          cache: false

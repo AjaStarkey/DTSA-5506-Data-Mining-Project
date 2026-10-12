@@ -1,0 +1,110 @@
+# TNBC Subtype Classification: Routine Clinical Data vs. a Low-Cost IHC Panel
+
+Can triple-negative breast cancer (TNBC) be subtyped without tumor sequencing? This project compares routine clinical data with a six-stain immunohistochemistry (IHC) panel for predicting the four Lehmann TNBC subtypes (BL1, BL2, LAR, M) in 175 TCGA patients. It is also a hands-on MLOps project: data and pipeline versioning with **DVC**, with MLflow, Dagster and KServe planned next.
+
+## Results (repeated stratified 5-fold CV, 25 fits per model)
+
+| Features | Best macro F1 |
+|---|---|
+| Routine clinical only (9 features) | ~0.27, about chance (0.25) |
+| IHC panel (6 stains, mRNA stand-ins) | ~0.60 |
+| Clinical + IHC panel | ~0.60 |
+
+- Routine clinical data cannot identify subtypes. The IHC panel roughly doubles macro F1.
+- LAR and BL1 are identified best. BL2 and M remain hard to separate.
+- Vimentin is the one stain whose removal clearly hurts performance. The other stains overlap with each other (e.g., AR and FOXA1 both mark LAR).
+- **Limitation:** TCGA has no results for these stains, so each stain is represented by the tumor's mRNA level for the matching gene. Real IHC is scored more coarsely, so real-world performance would likely be lower.
+
+## Project structure
+
+```
+├── data/
+│   ├── raw/                 # tracked by DVC (data/raw.dvc), not by git
+│   └── processed/           # pipeline output (dataset.parquet)
+├── src/
+│   ├── download_data.py     # one-time raw data download
+│   ├── prepare.py           # stage 1: labels + clinical + IHC genes -> parquet
+│   ├── train.py             # stage 2: repeated CV for all feature sets/models, save final model
+│   ├── evaluate.py          # stage 3: per-subtype metrics, confusion matrix, stain ablation
+│   └── common.py            # shared feature lists and model builders
+├── params.yaml              # every tunable setting
+├── dvc.yaml                 # pipeline definition
+├── dvc.lock                 # exact hashes of the last run (commit this)
+├── metrics/  plots/  models/
+└── notebooks/               # original exploratory Colab notebook
+```
+
+## Quick start
+
+```bash
+git clone https://github.com/AjaStarkey/tnbc-subtype-mlops.git
+cd tnbc-subtype-mlops
+python -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+
+dvc pull        # if a DVC remote is set up; otherwise run: python src/download_data.py
+dvc repro       # runs prepare -> train -> evaluate (about 5 minutes)
+dvc metrics show
+```
+
+## DVC walkthrough (first-time setup)
+
+**1. Initialize git and DVC**
+```bash
+git init
+dvc init
+git commit -m "Initialize DVC"
+```
+
+**2. Download and version the raw data**
+```bash
+python src/download_data.py   # if the PLOS download fails, follow the printed instructions
+dvc add data/raw
+git add data/raw.dvc data/.gitignore
+git commit -m "Track raw data with DVC"
+```
+`data/raw.dvc` is a small text file holding a hash of the data. Git versions that pointer, and DVC stores the actual ~150 MB of files.
+
+**3. Run the pipeline**
+```bash
+dvc repro
+git add dvc.lock metrics plots data/processed/.gitignore models/.gitignore
+git commit -m "Run pipeline"
+```
+DVC runs the stages in order, using the dependencies listed in `dvc.yaml`. Run `dvc repro` again and nothing happens, because nothing has changed. Edit `src/evaluate.py` and only the `evaluate` stage reruns.
+
+**4. Look at results**
+```bash
+dvc metrics show          # all tracked metrics
+dvc plots show            # writes an HTML report of the plots
+dvc dag                   # draws the pipeline graph
+```
+
+**5. Run experiments without editing files**
+```bash
+dvc exp run -n rf-500-trees -S models.random_forest.n_estimators=500
+dvc exp run -n logreg-final -S final_model.model=logistic_regression
+dvc exp show              # table comparing parameters and metrics across experiments
+dvc exp apply rf-500-trees   # keep the one you like, then git commit
+```
+
+**6. Set up remote storage**
+```bash
+# Local folder (simplest, for practice)
+dvc remote add -d localstore ../dvc-storage
+# or S3 (needs: pip install "dvc[s3]" and AWS credentials)
+# dvc remote add -d s3store s3://YOUR-BUCKET/tnbc-subtype-mlops
+git add .dvc/config && git commit -m "Add DVC remote"
+dvc push
+```
+Anyone who clones the repo can then run `dvc pull` to get the exact data used for every commit.
+
+## Data sources
+- **Clinical data and RNA-seq:** TCGA-BRCA PanCancer Atlas (Liu et al., 2018, *Cell*), via the cBioPortal datahub
+- **Subtype labels:** Lehmann et al. (2016), *PLoS ONE* 11(6): e0157368, Supplementary Table S1 ("Refined TNBCtype")
+
+## Roadmap
+- [x] **DVC:** data versioning, reproducible pipeline, metrics and experiments
+- [ ] **MLflow:** experiment tracking and model registry
+- [ ] **Dagster:** orchestrate the pipeline as scheduled, monitored assets
+- [ ] **KServe:** serve the final model behind a prediction API

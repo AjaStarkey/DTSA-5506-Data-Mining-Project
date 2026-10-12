@@ -1,1 +1,14 @@
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+dvc_plots/
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
 dvc_plots/

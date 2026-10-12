@@ -1,0 +1,11 @@
+dvc>=3.50
+pandas>=2.0
+numpy
+scikit-learn>=1.4
+matplotlib
+seaborn
+openpyxl
+pyarrow
+pyyaml
+requests
+joblib
