@@ -1,4 +1,16 @@
 {
+  "clinical_original": {
+    "logistic_regression": {
+      "f1_macro_mean": 0.3179,
+      "f1_macro_sd": 0.0668,
+      "accuracy_mean": 0.336
+    },
+    "random_forest": {
+      "f1_macro_mean": 0.3117,
+      "f1_macro_sd": 0.0506,
+      "accuracy_mean": 0.3349
+    }
+  },
   "clinical": {
     "logistic_regression": {
       "f1_macro_mean": 0.2488,

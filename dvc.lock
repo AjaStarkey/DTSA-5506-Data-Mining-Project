@@ -5,17 +5,17 @@ stages:
     deps:
     - path: data/raw
       hash: md5
-      md5: 5a7daf0ff68901b8302a8d89410ad2a9.dir
-      size: 155036095
-      nfiles: 3
+      md5: ba1be445151967a7bbfd3dd7652fcdee.dir
+      size: 155061150
+      nfiles: 4
     - path: src/common.py
       hash: md5
-      md5: bd15b5e411c0335667397863be0f59f7
-      size: 2953
+      md5: 2b624aaa1714396b96d1164c5d798484
+      size: 3301
     - path: src/prepare.py
       hash: md5
-      md5: fe5fd089650f241cc9ad71dc75304174
-      size: 2555
+      md5: 04a479a1321ad19fc1f27b184673a0d1
+      size: 2814
     params:
       params.yaml:
         data:
@@ -36,6 +36,11 @@ stages:
           - RACE
           - ETHNICITY
           - PRIOR_DX
+          original_extra_numeric:
+          - BUFFA_HYPOXIA_SCORE
+          original_extra_categorical:
+          - AJCC_STAGING_EDITION
+          - RADIATION_THERAPY
           ihc_genes:
             AR: Androgen receptor
             FOXA1: FOXA1
@@ -51,19 +56,19 @@ stages:
       size: 149
     - path: data/processed/dataset.parquet
       hash: md5
-      md5: 129d18a3b27ad191c4f9268d38912c9f
-      size: 24497
+      md5: abd6c5d120783e5b043f1f6178be8708
+      size: 26788
   train:
     cmd: python src/train.py
     deps:
     - path: data/processed/dataset.parquet
       hash: md5
-      md5: 129d18a3b27ad191c4f9268d38912c9f
-      size: 24497
+      md5: abd6c5d120783e5b043f1f6178be8708
+      size: 26788
     - path: src/common.py
       hash: md5
-      md5: bd15b5e411c0335667397863be0f59f7
-      size: 2953
+      md5: 2b624aaa1714396b96d1164c5d798484
+      size: 3301
     - path: src/train.py
       hash: md5
       md5: 522b7b2b82825ad77b515a1b1467d288
@@ -86,6 +91,11 @@ stages:
           - RACE
           - ETHNICITY
           - PRIOR_DX
+          original_extra_numeric:
+          - BUFFA_HYPOXIA_SCORE
+          original_extra_categorical:
+          - AJCC_STAGING_EDITION
+          - RADIATION_THERAPY
           ihc_genes:
             AR: Androgen receptor
             FOXA1: FOXA1
@@ -106,12 +116,12 @@ stages:
     outs:
     - path: metrics/cv_metrics.json
       hash: md5
-      md5: 10d7fb4bfb35993891a6ce6976f8cdfb
-      size: 803
+      md5: 212568c5f651ae2b0a7c2435900b4461
+      size: 1077
     - path: metrics/cv_results.csv
       hash: md5
-      md5: 817f8cc900d4d36deab38e106df4e771
-      size: 348
+      md5: fc19b212f529a9c4301e0d8fc31f37dc
+      size: 459
     - path: models/model.joblib
       hash: md5
       md5: 995c4ba6aefe90fc67a241d491cd7c90
@@ -121,12 +131,12 @@ stages:
     deps:
     - path: data/processed/dataset.parquet
       hash: md5
-      md5: 129d18a3b27ad191c4f9268d38912c9f
-      size: 24497
+      md5: abd6c5d120783e5b043f1f6178be8708
+      size: 26788
     - path: src/common.py
       hash: md5
-      md5: bd15b5e411c0335667397863be0f59f7
-      size: 2953
+      md5: 2b624aaa1714396b96d1164c5d798484
+      size: 3301
     - path: src/evaluate.py
       hash: md5
       md5: 66f666fb0eb1de186b8260623e2eb218
