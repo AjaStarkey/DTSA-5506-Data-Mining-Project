@@ -49,3 +49,9 @@ evaluate:
 final_model:
   feature_set: ihc_panel        # clinical_original | clinical | ihc_panel | clinical_ihc
   model: random_forest          # logistic_regression | random_forest
+
+# Experiment tracking. A local SQLite file in the project folder; ignored by git.
+mlflow:
+  tracking_uri: sqlite:///mlflow.db
+  experiment_name: tnbc-subtype-classification
+  registered_model_name: tnbc-subtype-classifier

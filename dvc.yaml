@@ -25,8 +25,11 @@ stages:
       - cv
       - models
       - final_model
+      - mlflow
     outs:
       - models/model.joblib
+      - models/model_features.json:
+          cache: false
     metrics:
       - metrics/cv_metrics.json:
           cache: false

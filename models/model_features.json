@@ -1,0 +1,19 @@
+{
+  "feature_set": "ihc_panel",
+  "model": "random_forest",
+  "features": [
+    "IHC_AR",
+    "IHC_FOXA1",
+    "IHC_MKI67",
+    "IHC_KRT5",
+    "IHC_KRT6A",
+    "IHC_EGFR",
+    "IHC_VIM"
+  ],
+  "classes": [
+    "BL1",
+    "BL2",
+    "LAR",
+    "M"
+  ]
+}

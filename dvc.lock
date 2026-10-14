@@ -71,8 +71,8 @@ stages:
       size: 3301
     - path: src/train.py
       hash: md5
-      md5: 522b7b2b82825ad77b515a1b1467d288
-      size: 2088
+      md5: c12c09555b6c77e61557630510de8295
+      size: 5064
     params:
       params.yaml:
         cv:
@@ -107,6 +107,10 @@ stages:
         final_model:
           feature_set: ihc_panel
           model: random_forest
+        mlflow:
+          tracking_uri: sqlite:///mlflow.db
+          experiment_name: tnbc-subtype-classification
+          registered_model_name: tnbc-subtype-classifier
         models:
           logistic_regression:
             C: 0.1
@@ -124,8 +128,12 @@ stages:
       size: 459
     - path: models/model.joblib
       hash: md5
-      md5: 995c4ba6aefe90fc67a241d491cd7c90
-      size: 1553229
+      md5: a8afc8dd5aa90df60b044e48115f210e
+      size: 1553147
+    - path: models/model_features.json
+      hash: md5
+      md5: 4297c7ccceac19a2d8515dba4277693e
+      size: 253
   evaluate:
     cmd: python src/evaluate.py
     deps:

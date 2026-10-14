@@ -9,3 +9,4 @@ pyarrow
 pyyaml
 requests
 joblib
+mlflow>=3.0

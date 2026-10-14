@@ -1,6 +1,6 @@
 # TNBC Subtype Classification: Routine Clinical Data vs. a Low-Cost IHC Panel
 
-Can triple-negative breast cancer (TNBC) be subtyped without tumor sequencing? This project compares routine clinical data with a six-stain immunohistochemistry (IHC) panel for predicting the four Lehmann TNBC subtypes (BL1, BL2, LAR, M) in 175 TCGA patients. It is also a hands-on MLOps project: data and pipeline versioning with **DVC**, with MLflow, Dagster and KServe planned next.
+Can triple-negative breast cancer (TNBC) be subtyped without tumor sequencing? This project compares routine clinical data with a six-stain immunohistochemistry (IHC) panel for predicting the four Lehmann TNBC subtypes (BL1, BL2, LAR, M) in 175 TCGA patients. It is also a hands-on MLOps project: data and pipeline versioning with **DVC**, experiment tracking and a model registry with **MLflow**, with Dagster and KServe planned next.
 
 ## Results (repeated stratified 5-fold CV, 25 fits per model)
 
@@ -101,12 +101,26 @@ dvc push
 ```
 Anyone who clones the repo can then run `dvc pull` to get the exact data used for every commit.
 
+## MLflow: experiment tracking and model registry
+
+Every `dvc repro` that reruns the train stage logs to MLflow (stored locally in `mlflow.db`, which git ignores):
+
+- a parent run, **dvc-train**, with all settings from `params.yaml`, the git commit, and the DVC fingerprint of `data/raw` (tag `dvc_data_md5`), so each result can be traced to the exact code and data that produced it
+- one child run per feature set and model, with its cross-validated macro F1 and accuracy
+- the final model, registered as a new version of **tnbc-subtype-classifier**
+
+Open the dashboard:
+```bash
+mlflow ui --backend-store-uri sqlite:///mlflow.db
+```
+In Codespaces, click **Open in Browser** when port 5000 is offered (or use the **Ports** tab).
+
 ## Data sources
 - **Clinical data and RNA-seq:** TCGA-BRCA PanCancer Atlas (Liu et al., 2018, *Cell*), via the cBioPortal datahub
 - **Subtype labels:** Lehmann et al. (2016), *PLoS ONE* 11(6): e0157368, Supplementary Table S1 ("Refined TNBCtype")
 
 ## Roadmap
 - [x] **DVC:** data versioning, reproducible pipeline, metrics and experiments
-- [ ] **MLflow:** experiment tracking and model registry
+- [x] **MLflow:** experiment tracking and model registry
 - [ ] **Dagster:** orchestrate the pipeline as scheduled, monitored assets
 - [ ] **KServe:** serve the final model behind a prediction API
