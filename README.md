@@ -1,6 +1,6 @@
 # TNBC Subtype Classification: Routine Clinical Data vs. a Low-Cost IHC Panel
 
-Can triple-negative breast cancer (TNBC) be subtyped without tumor sequencing? This project compares routine clinical data with a six-stain immunohistochemistry (IHC) panel for predicting the four Lehmann TNBC subtypes (BL1, BL2, LAR, M) in 175 TCGA patients. It is also a hands-on MLOps project: data and pipeline versioning with **DVC**, experiment tracking and a model registry with **MLflow**, with Dagster and KServe planned next.
+Can triple-negative breast cancer (TNBC) be subtyped without tumor sequencing? This project compares routine clinical data with a six-stain immunohistochemistry (IHC) panel for predicting the four Lehmann TNBC subtypes (BL1, BL2, LAR, M) in 175 TCGA patients. It is also a hands-on MLOps project: data and pipeline versioning with **DVC**, experiment tracking and a model registry with **MLflow**, and orchestration with **Dagster**, with KServe serving planned next.
 
 ## Results (repeated stratified 5-fold CV, 25 fits per model)
 
@@ -115,6 +115,24 @@ mlflow ui --backend-store-uri sqlite:///mlflow.db
 ```
 In Codespaces, click **Open in Browser** when port 5000 is offered (or use the **Ports** tab).
 
+## Dagster: orchestration, quality checks and model promotion
+
+`orchestration/definitions.py` turns the pipeline into five Dagster assets:
+
+```
+raw_data -> processed_dataset -> trained_models -> model_evaluation -> champion_model
+```
+
+- Each asset runs its DVC stage (`dvc repro <stage>`), so DVC still decides what needs rebuilding and skips anything unchanged.
+- **Asset checks** run after each step: all four subtypes and 175 patients present, no missing IHC values, final model macro F1 >= 0.50 (a blocking quality gate), IHC panel beats routine clinical data, and every subtype has F1 >= 0.35.
+- **champion_model** gives the newest registered MLflow model version the alias `champion` if it passes the quality gate. Serving (KServe) will load `models:/tnbc-subtype-classifier@champion`.
+- **Automation:** a weekly retraining schedule (Mondays 6 am Mountain) and a sensor that starts the pipeline when `data/raw.dvc` or `params.yaml` changes. Both start switched off; turn them on in the UI under **Automation**.
+
+```bash
+bash dagster_ui.sh      # open port 3000, then Assets -> Materialize all
+dagster job execute -f orchestration/definitions.py -j full_pipeline   # or run it from the terminal
+```
+
 ## Data sources
 - **Clinical data and RNA-seq:** TCGA-BRCA PanCancer Atlas (Liu et al., 2018, *Cell*), via the cBioPortal datahub
 - **Subtype labels:** Lehmann et al. (2016), *PLoS ONE* 11(6): e0157368, Supplementary Table S1 ("Refined TNBCtype")
@@ -122,5 +140,5 @@ In Codespaces, click **Open in Browser** when port 5000 is offered (or use the *
 ## Roadmap
 - [x] **DVC:** data versioning, reproducible pipeline, metrics and experiments
 - [x] **MLflow:** experiment tracking and model registry
-- [ ] **Dagster:** orchestrate the pipeline as scheduled, monitored assets
+- [x] **Dagster:** orchestrate the pipeline as scheduled, monitored assets with quality checks and model promotion
 - [ ] **KServe:** serve the final model behind a prediction API

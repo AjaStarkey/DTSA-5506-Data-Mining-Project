@@ -7,3 +7,4 @@ mlflow.db
 mlruns/
 mlartifacts/
 .DS_Store
+.dagster/

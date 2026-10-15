@@ -10,3 +10,6 @@ pyyaml
 requests
 joblib
 mlflow>=3.0
+dagster>=1.13
+dagster-webserver>=1.13
+tabulate
