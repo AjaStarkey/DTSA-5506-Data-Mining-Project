@@ -133,6 +133,35 @@ bash dagster_ui.sh      # open port 3000, then Assets -> Materialize all
 dagster job execute -f orchestration/definitions.py -j full_pipeline   # or run it from the terminal
 ```
 
+## Serving: a KServe prediction API in Docker
+
+The `@champion` model is served by a KServe custom predictor (`serving/predictor.py`), packaged as a Docker image.
+
+```bash
+bash serving/serve_local.sh   # export @champion from MLflow -> build image -> run on port 8080 -> test
+bash serving/predict.sh       # send the four example patients again
+docker stop tnbc-subtype      # stop the server
+```
+
+Request (KServe V1 protocol), `POST /v1/models/tnbc-subtype:predict`:
+
+```json
+{"instances": [{"AR": 7.86, "FOXA1": 12.30, "Ki67": 11.38, "CK5": 10.38, "CK6": 6.15, "EGFR": 9.73, "Vimentin": 13.81}]}
+```
+
+Response:
+
+```json
+{"predictions": [{"subtype": "LAR", "probabilities": {"BL1": 0.01, "BL2": 0.05, "LAR": 0.92, "M": 0.02}}],
+ "model": {"model_name": "tnbc-subtype-classifier", "model_version": 1, "cv_macro_f1": "0.597"}}
+```
+
+- Inputs are on the training scale: log2(RSEM + 1) mRNA of each stain's gene. A value may be `null` (imputed with the training median). Real IHC scores would require retraining on stain scores first.
+- Invalid requests (missing or unknown fields, non-numbers) return a clear error message.
+- The image pins the scikit-learn and numpy versions the model was saved with (read from `serving/model/metadata.json`).
+- Dagster's `serving_model` asset re-exports the model after each promotion, so the next image build always serves the current champion.
+- Next: deploy the same image as a KServe `InferenceService` on a local Kubernetes cluster (kind).
+
 ## Data sources
 - **Clinical data and RNA-seq:** TCGA-BRCA PanCancer Atlas (Liu et al., 2018, *Cell*), via the cBioPortal datahub
 - **Subtype labels:** Lehmann et al. (2016), *PLoS ONE* 11(6): e0157368, Supplementary Table S1 ("Refined TNBCtype")
@@ -141,4 +170,5 @@ dagster job execute -f orchestration/definitions.py -j full_pipeline   # or run 
 - [x] **DVC:** data versioning, reproducible pipeline, metrics and experiments
 - [x] **MLflow:** experiment tracking and model registry
 - [x] **Dagster:** orchestrate the pipeline as scheduled, monitored assets with quality checks and model promotion
-- [ ] **KServe:** serve the final model behind a prediction API
+- [x] **Serving:** KServe custom predictor in Docker, fed by Dagster from the MLflow @champion
+- [ ] **KServe on Kubernetes:** deploy the image as an InferenceService (kind)

@@ -146,6 +146,25 @@ def champion_model(context: AssetExecutionContext) -> MaterializeResult:
     })
 
 
+@asset(group_name="tnbc_pipeline", deps=[champion_model],
+       description="Exports the @champion model to serving/model/ (model.joblib + metadata.json) for the KServe prediction server. Rebuild the image with: bash serving/serve_local.sh")
+def serving_model(context: AssetExecutionContext) -> MaterializeResult:
+    proc = subprocess.run(["python", "serving/export_champion.py"], cwd=ROOT, capture_output=True, text=True)
+    for line in (proc.stdout + proc.stderr).splitlines():
+        if line.strip():
+            context.log.info(line)
+    if proc.returncode != 0:
+        raise RuntimeError("serving/export_champion.py failed")
+    meta = json.loads((ROOT / "serving" / "model" / "metadata.json").read_text())
+    return MaterializeResult(metadata={
+        "model_version": meta["model_version"],
+        "cv_macro_f1": meta.get("cv_macro_f1") or "",
+        "features": ", ".join(meta["features"]),
+        "sklearn_version": meta["sklearn_version"],
+        "endpoint": "POST /v1/models/tnbc-subtype:predict",
+    })
+
+
 # ----------------------------------------------------------------------------- data & model quality checks
 @asset_check(asset=processed_dataset, description="All four subtypes present and the patient count is what the paper reports.")
 def dataset_is_complete():
@@ -222,7 +241,7 @@ def retrain_on_change(context: SensorEvaluationContext):
 
 
 defs = Definitions(
-    assets=[raw_data, processed_dataset, trained_models, model_evaluation, champion_model],
+    assets=[raw_data, processed_dataset, trained_models, model_evaluation, champion_model, serving_model],
     asset_checks=[dataset_is_complete, ihc_values_present, final_model_meets_floor,
                   ihc_beats_clinical, no_subtype_left_behind],
     jobs=[full_pipeline],

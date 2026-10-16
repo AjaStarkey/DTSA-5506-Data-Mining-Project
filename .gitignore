@@ -8,3 +8,4 @@ mlruns/
 mlartifacts/
 .DS_Store
 .dagster/
+serving/model/
