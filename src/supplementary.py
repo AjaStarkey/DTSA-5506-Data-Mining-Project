@@ -44,7 +44,7 @@ STAIN = {"IHC_AR": "AR", "IHC_FOXA1": "FOXA1", "IHC_MKI67": "Ki-67", "IHC_KRT5":
          "IHC_KRT6A": "CK6 (KRT6A)", "IHC_EGFR": "EGFR", "IHC_VIM": "Vimentin"}
 rcv = RepeatedStratifiedKFold(n_splits=5, n_repeats=5, random_state=SEED)
 cv5 = StratifiedKFold(n_splits=5, shuffle=True, random_state=SEED)
-which = sys.argv[1:] or ["table1", "oof", "binary", "coarse", "single", "rna", "orig_ihc", "detail", "markers", "perm"]
+which = sys.argv[1:] or ["table1", "oof", "binary", "coarse", "single", "rna", "orig_ihc", "ck56", "detail", "markers", "perm"]
 
 
 def rf_pipe(cols, binner=None):
@@ -229,6 +229,16 @@ if "orig_ihc" in which:
         pipe = Pipeline([("prep", preprocessor(num, cat)), ("model", make_model(m, params))])
         rows.append({"feature_set": "clinical_original_ihc", "model": m, **cv_f1(pipe, data[num + cat])})
     o = pd.DataFrame(rows); o.to_csv(OUT / "original12_plus_ihc.csv", index=False); print(o.to_string())
+
+# ---------------------------------------------------------------- CK5/6 as one stain: combine KRT5 + KRT6A
+if "ck56" in which:
+    X7 = data[IHC]
+    X6 = X7.drop(columns=["IHC_KRT5", "IHC_KRT6A"]).copy()
+    # total CK5 + CK6 mRNA on the same log2(RSEM + 1) scale, as a single CK5/6 stain would detect it
+    X6["IHC_CK56"] = np.log2((2 ** X7["IHC_KRT5"] - 1) + (2 ** X7["IHC_KRT6A"] - 1) + 1)
+    rows = [{"inputs": "seven genes (KRT5 and KRT6A separate)", **cv_f1(rf_pipe(list(X7.columns)), X7)},
+            {"inputs": "six values (KRT5 + KRT6A combined, as one CK5/6 stain)", **cv_f1(rf_pipe(list(X6.columns)), X6)}]
+    r = pd.DataFrame(rows); r.to_csv(OUT / "ck56_combined.csv", index=False); print(r.to_string())
 
 # ---------------------------------------------------------------- scoring detail and measurement noise
 if "detail" in which:
