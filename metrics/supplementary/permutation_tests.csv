@@ -1,0 +1,4 @@
+feature_set,f1_macro,null_mean,null_95th,p_value
+clinical,0.217,0.233,0.293,0.6733
+clinical_original,0.276,0.24,0.307,0.1584
+ihc_panel,0.617,0.247,0.3,0.0099

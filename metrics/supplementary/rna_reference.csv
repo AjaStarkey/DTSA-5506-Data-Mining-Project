@@ -1,0 +1,2 @@
+features,f1_macro_mean,f1_macro_sd,accuracy_mean
+"Top 1000 genes (selected within each fold), ~20511 measured",0.8011,0.0768,0.8091

@@ -1,0 +1,5 @@
+scoring,f1_macro_mean,f1_macro_sd,accuracy_mean
+Continuous mRNA (main analysis),0.5971,0.0689,0.6183
+4 levels (like 0 / 1+ / 2+ / 3+),0.5597,0.0659,0.5851
+3 levels (low / medium / high),0.5309,0.0837,0.5497
+2 levels (negative / positive),0.4667,0.0729,0.4903

@@ -1,0 +1,13 @@
+panel,n_stains,f1_macro_mean,f1_macro_sd,accuracy_mean
+AR only,1,0.3854,0.0744,0.3977
+FOXA1 only,1,0.3908,0.0597,0.4034
+Ki-67 only,1,0.2749,0.0583,0.3029
+CK5/6 only,1,0.332,0.0502,0.344
+EGFR only,1,0.321,0.0794,0.3417
+Vimentin only,1,0.3994,0.0696,0.4069
+AR + Vimentin,2,0.4925,0.0708,0.5097
+AR + Vimentin + CK5/6,3,0.5396,0.0762,0.552
+AR + Vimentin + CK5/6 + Ki-67,4,0.5664,0.0748,0.5794
+AR + Vimentin + CK5/6 + EGFR,4,0.5694,0.0768,0.584
+Prior-literature trio: AR + CK5/6 + EGFR,3,0.522,0.0696,0.5474
+Full six-stain panel,6,0.5971,0.0689,0.6183
