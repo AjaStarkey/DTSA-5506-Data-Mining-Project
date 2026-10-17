@@ -44,7 +44,7 @@ STAIN = {"IHC_AR": "AR", "IHC_FOXA1": "FOXA1", "IHC_MKI67": "Ki-67", "IHC_KRT5":
          "IHC_KRT6A": "CK6 (KRT6A)", "IHC_EGFR": "EGFR", "IHC_VIM": "Vimentin"}
 rcv = RepeatedStratifiedKFold(n_splits=5, n_repeats=5, random_state=SEED)
 cv5 = StratifiedKFold(n_splits=5, shuffle=True, random_state=SEED)
-which = sys.argv[1:] or ["table1", "oof", "binary", "coarse", "single", "rna", "orig_ihc", "ck56", "detail", "markers", "perm"]
+which = sys.argv[1:] or ["table1", "oof", "binary", "coarse", "single", "rna", "ck56", "detail", "markers", "perm"]
 
 
 def rf_pipe(cols, binner=None):
@@ -127,7 +127,7 @@ if "table1" in which:
 if "oof" in which:
     res, cms = {}, {}
     rng = np.random.default_rng(SEED)
-    for fs in ["clinical_original", "clinical", "ihc_panel", "clinical_ihc"]:
+    for fs in ["clinical", "ihc_panel", "clinical_ihc"]:
         pipe, cols = make_pipeline(fs, "random_forest", params)
         pred = cross_val_predict(pipe, data[cols], y, cv=cv5)
         rep = classification_report(y, pred, labels=SUB, output_dict=True, zero_division=0)
@@ -147,9 +147,8 @@ if "oof" in which:
         cms[fs] = confusion_matrix(y, pred, labels=SUB)
     (OUT / "oof_per_class.json").write_text(json.dumps(res, indent=2))
     print(json.dumps(res, indent=2))
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4))
-    titles = {"clinical_original": "A. Original 12 clinical features", "clinical": "B. Routine clinical (9)",
-              "ihc_panel": "C. Six-stain IHC panel"}
+    fig, axes = plt.subplots(1, 2, figsize=(9, 4))
+    titles = {"clinical": "A. Routine clinical (9 features)", "ihc_panel": "B. Six-stain IHC panel"}
     for ax, fs in zip(axes, titles):
         cm = cms[fs]; norm = cm / cm.sum(axis=1, keepdims=True)
         annot = np.array([[f"{norm[i,j]:.2f}\n(n={cm[i,j]})" for j in range(4)] for i in range(4)])
@@ -219,17 +218,6 @@ if "rna" in which:
                      **cv_f1(pipe, X.values)})
     r = pd.DataFrame(rows); r.to_csv(OUT / "rna_reference.csv", index=False); print(r.to_string())
 
-# ---------------------------------------------------------------- original 12 clinical features + IHC panel
-if "orig_ihc" in which:
-    f = params["features"]
-    num = f["clinical_numeric"] + f["original_extra_numeric"] + IHC
-    cat = f["clinical_categorical"] + f["original_extra_categorical"]
-    rows = []
-    for m in ["logistic_regression", "random_forest"]:
-        pipe = Pipeline([("prep", preprocessor(num, cat)), ("model", make_model(m, params))])
-        rows.append({"feature_set": "clinical_original_ihc", "model": m, **cv_f1(pipe, data[num + cat])})
-    o = pd.DataFrame(rows); o.to_csv(OUT / "original12_plus_ihc.csv", index=False); print(o.to_string())
-
 # ---------------------------------------------------------------- CK5/6 as one stain: combine KRT5 + KRT6A
 if "ck56" in which:
     X7 = data[IHC]
@@ -297,7 +285,7 @@ if "markers" in which:
 # ---------------------------------------------------------------- permutation tests
 if "perm" in which:
     rows = []
-    for fs in ["clinical", "clinical_original", "ihc_panel"]:
+    for fs in ["clinical", "ihc_panel"]:
         pipe, cols = make_pipeline(fs, "random_forest", params)
         score, perm, p = permutation_test_score(pipe, data[cols], y, cv=cv5, scoring="f1_macro",
                                                 n_permutations=100, random_state=SEED)

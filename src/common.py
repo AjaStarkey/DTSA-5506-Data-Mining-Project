@@ -28,7 +28,7 @@ def ihc_columns(params):
 
 def categorical_columns(params):
     f = params["features"]
-    return f["clinical_categorical"] + f["original_extra_categorical"]
+    return f["clinical_categorical"]
 
 
 def feature_sets(params):
@@ -37,8 +37,6 @@ def feature_sets(params):
     num, cat = f["clinical_numeric"], f["clinical_categorical"]
     ihc = ihc_columns(params)
     return {
-        # Original course version: 12 clinical features incl. Buffa hypoxia (mRNA-derived)
-        "clinical_original": (num + f["original_extra_numeric"], cat + f["original_extra_categorical"]),
         # Routine clinical features only (9)
         "clinical": (num, cat),
         "ihc_panel": (ihc, []),

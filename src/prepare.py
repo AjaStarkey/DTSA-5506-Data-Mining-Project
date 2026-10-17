@@ -1,7 +1,6 @@
 """Stage: prepare
 Raw files -> one modeling table (data/processed/dataset.parquet):
-Lehmann subtype labels + clinical features (9 routine + 3 used only by the original
-12-feature version) + 7 IHC stand-in genes.
+Lehmann subtype labels + 9 routine clinical features + 7 IHC stand-in genes.
 """
 import json
 
@@ -23,11 +22,9 @@ def load_labels(subtypes):
 
 def load_clinical(params):
     f = params["features"]
-    num = f["clinical_numeric"] + f["original_extra_numeric"]
-    cat = f["clinical_categorical"] + f["original_extra_categorical"]
+    num = f["clinical_numeric"]
+    cat = f["clinical_categorical"]
     clin = pd.read_csv(RAW / "tcga_brca_clinical_patient.txt", sep="\t", comment="#").set_index("PATIENT_ID")
-    hyp = pd.read_csv(RAW / "tcga_brca_hypoxia.txt", sep="\t", comment="#").set_index("PATIENT_ID")
-    clin = clin.join(hyp[["BUFFA_HYPOXIA_SCORE"]])
     clin = clin[num + cat].copy()
     clin[num] = clin[num].apply(pd.to_numeric, errors="coerce")
     clin[cat] = clin[cat].astype("string")

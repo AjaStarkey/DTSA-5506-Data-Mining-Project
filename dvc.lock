@@ -10,12 +10,12 @@ stages:
       nfiles: 4
     - path: src/common.py
       hash: md5
-      md5: 2b624aaa1714396b96d1164c5d798484
-      size: 3301
+      md5: 7931daa91729190864e9578cab8facb5
+      size: 3071
     - path: src/prepare.py
       hash: md5
-      md5: 04a479a1321ad19fc1f27b184673a0d1
-      size: 2814
+      md5: 625f35cba82868b9536cbaca0131cb33
+      size: 2548
     params:
       params.yaml:
         data:
@@ -36,11 +36,6 @@ stages:
           - RACE
           - ETHNICITY
           - PRIOR_DX
-          original_extra_numeric:
-          - BUFFA_HYPOXIA_SCORE
-          original_extra_categorical:
-          - AJCC_STAGING_EDITION
-          - RADIATION_THERAPY
           ihc_genes:
             AR: Androgen receptor
             FOXA1: FOXA1
@@ -56,19 +51,19 @@ stages:
       size: 149
     - path: data/processed/dataset.parquet
       hash: md5
-      md5: abd6c5d120783e5b043f1f6178be8708
-      size: 26788
+      md5: 11714702d6d0f23cf92cdb79cf525fdf
+      size: 24497
   train:
     cmd: python src/train.py
     deps:
     - path: data/processed/dataset.parquet
       hash: md5
-      md5: abd6c5d120783e5b043f1f6178be8708
-      size: 26788
+      md5: 11714702d6d0f23cf92cdb79cf525fdf
+      size: 24497
     - path: src/common.py
       hash: md5
-      md5: 2b624aaa1714396b96d1164c5d798484
-      size: 3301
+      md5: 7931daa91729190864e9578cab8facb5
+      size: 3071
     - path: src/train.py
       hash: md5
       md5: c12c09555b6c77e61557630510de8295
@@ -91,11 +86,6 @@ stages:
           - RACE
           - ETHNICITY
           - PRIOR_DX
-          original_extra_numeric:
-          - BUFFA_HYPOXIA_SCORE
-          original_extra_categorical:
-          - AJCC_STAGING_EDITION
-          - RADIATION_THERAPY
           ihc_genes:
             AR: Androgen receptor
             FOXA1: FOXA1
@@ -120,12 +110,12 @@ stages:
     outs:
     - path: metrics/cv_metrics.json
       hash: md5
-      md5: 212568c5f651ae2b0a7c2435900b4461
-      size: 1077
+      md5: 10d7fb4bfb35993891a6ce6976f8cdfb
+      size: 803
     - path: metrics/cv_results.csv
       hash: md5
-      md5: fc19b212f529a9c4301e0d8fc31f37dc
-      size: 459
+      md5: 817f8cc900d4d36deab38e106df4e771
+      size: 348
     - path: models/model.joblib
       hash: md5
       md5: a8afc8dd5aa90df60b044e48115f210e
@@ -139,12 +129,12 @@ stages:
     deps:
     - path: data/processed/dataset.parquet
       hash: md5
-      md5: abd6c5d120783e5b043f1f6178be8708
-      size: 26788
+      md5: 11714702d6d0f23cf92cdb79cf525fdf
+      size: 24497
     - path: src/common.py
       hash: md5
-      md5: 2b624aaa1714396b96d1164c5d798484
-      size: 3301
+      md5: 7931daa91729190864e9578cab8facb5
+      size: 3071
     - path: src/evaluate.py
       hash: md5
       md5: 66f666fb0eb1de186b8260623e2eb218

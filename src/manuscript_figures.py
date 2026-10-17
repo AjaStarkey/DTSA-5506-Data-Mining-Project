@@ -15,9 +15,8 @@ plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 10})
 # Figure: macro F1 by feature set and model, with transcriptome reference
 cv = pd.read_csv(METRICS / "cv_results.csv")
 rna = pd.read_csv(S / "rna_reference.csv").iloc[0]
-names = {"clinical": "Routine clinical\n(9 features)", "clinical_original": "Original course model\n(12 features, incl. Buffa)",
-         "ihc_panel": "Six-stain IHC panel\n(7 mRNA stand-ins)", "clinical_ihc": "Clinical + IHC panel\n(16 features)"}
-order = ["clinical", "clinical_original", "ihc_panel", "clinical_ihc"]
+names = {"clinical": "Routine clinical\n(9 features)", "ihc_panel": "Six-stain IHC panel\n(7 mRNA stand-ins)", "clinical_ihc": "Clinical + IHC panel\n(16 features)"}
+order = ["clinical", "ihc_panel", "clinical_ihc"]
 fig, ax = plt.subplots(figsize=(8.5, 4.2))
 x = np.arange(len(order) + 1)
 w = 0.38
@@ -30,7 +29,7 @@ for k, (m, col, lab) in enumerate([("logistic_regression", "#9db4cc", "Logistic 
 ax.bar(x[-1], rna.f1_macro_mean, w, yerr=rna.f1_macro_sd, capsize=3, color="#b9b9b9", hatch="//", label="Whole-transcriptome reference (LR)")
 ax.text(x[-1], rna.f1_macro_mean + 0.08, f"{rna.f1_macro_mean:.2f}", ha="center", fontsize=8)
 ax.axhline(0.25, ls="--", color="#c0392b", lw=1)
-ax.text(3.62, 0.265, "chance ≈ 0.25", color="#c0392b", fontsize=8, ha="center")
+ax.text(2.55, 0.265, "chance ≈ 0.25", color="#c0392b", fontsize=8, ha="center")
 ax.set_xticks(x); ax.set_xticklabels([names[o] for o in order] + ["Top 1,000 genes\n(RNA-seq reference)"], fontsize=8)
 ax.set_ylabel("Macro F1 (mean ± SD, 25 CV folds)"); ax.set_ylim(0, 1)
 ax.legend(fontsize=8, loc="upper left", frameon=False)

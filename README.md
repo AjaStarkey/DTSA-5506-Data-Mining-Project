@@ -6,16 +6,16 @@ Can triple-negative breast cancer (TNBC) be subtyped without tumor sequencing? T
 
 | Features | Best macro F1 |
 |---|---|
-| Original course version (12 clinical features, incl. Buffa hypoxia score) | ~0.34 |
 | Routine clinical only (9 features) | ~0.27, about chance (0.25) |
 | IHC panel (6 stains, mRNA stand-ins) | ~0.60 |
 | Clinical + IHC panel | ~0.60 |
 
-- **Original version:** my course project reached macro F1 0.36 on a single test split (~0.34 here with repeated CV). Most of that signal came from the Buffa hypoxia score, which is calculated from tumor mRNA, so it is not a routine clinical measurement.
 - Routine clinical data alone cannot identify subtypes. The IHC panel roughly doubles macro F1.
 - LAR and BL1 are identified best. BL2 and M remain hard to separate.
 - Vimentin is the one stain whose removal clearly hurts performance (macro F1 drops ~0.06). Removing any other stain changes it by 0.02 or less, because the stains overlap (e.g., AR and FOXA1 both mark LAR).
 - **Limitation:** TCGA has no results for these stains, so each stain is represented by the tumor's mRNA level for the matching gene. Real IHC is scored more coarsely, so real-world performance would likely be lower.
+
+- **Original course project:** the first version of this analysis, which also trained a 12-feature clinical model (including the mRNA-derived Buffa hypoxia score), is preserved at git tag [`v1-course-project`](../../tree/v1-course-project). The current pipeline matches the manuscript: routine clinical (9 features), the six-stain IHC panel, and both combined.
 
 ## Project structure
 
