@@ -17,6 +17,22 @@ Can triple-negative breast cancer (TNBC) be subtyped without tumor sequencing? T
 
 - **Original course project:** the first version of this analysis, which also trained a 12-feature clinical model (including the mRNA-derived Buffa hypoxia score), is preserved at git tag [`v1-course-project`](../../tree/v1-course-project). The current pipeline matches the manuscript: routine clinical (9 features), the six-stain IHC panel, and both combined.
 
+## Reproducing the results
+
+The numbers in `metrics/` and in the manuscript were produced with the exact package
+versions in `requirements.lock.txt` (Python version in `.python-version`; key versions in
+`metrics/environment.json`). To reproduce them:
+
+```bash
+pip install -r requirements.lock.txt
+dvc pull                              # raw data (or run src/download_data.py)
+dvc repro                             # or: dagster job execute -f orchestration/definitions.py -j full_pipeline
+python src/verify_reproducible.py     # re-runs the CV and checks it matches metrics/cv_results.csv
+```
+
+Random forests and CV splits use fixed seeds (`params.yaml`), so the same versions give the
+same results. Newer scikit-learn or numpy releases can shift scores slightly (about ±0.03 macro F1).
+
 ## Project structure
 
 ```
